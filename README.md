@@ -1,4 +1,6 @@
-## This repository contains pictures REST API
+# Pictures REST API
+
+## This repository contains Pictures REST API
 
 The Pictures REST API is designed to facilitate the management and retrieval of image resources over the web. It typically provides endpoints that allow users to perform CRUD (Create, Read, Update, Delete) operations on images. Here's a brief description of what such an API might offer:
 
