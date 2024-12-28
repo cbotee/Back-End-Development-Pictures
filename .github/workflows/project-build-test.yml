@@ -30,10 +30,3 @@ jobs:
       run: |
         # Adjust the test command according to your testing framework
         python -m pytest
-
-    - name: Archive test reports
-      if: always()
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-reports
-        path: reports/  
