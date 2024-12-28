@@ -1,4 +1,3 @@
----
 name: Jekyll
 
 on:
@@ -19,6 +18,13 @@ jobs:
       with:
         bundle-cache: true # Package app's gems into the vendor/cache directory
         ruby-version: 2.7 # Specify the Ruby version you want to use
+
+    - name: Create Gemfile
+      run: |
+        echo "source 'https://rubygems.org'" > Gemfile
+        echo "gem 'jekyll', '~> 4.2.0'" >> Gemfile
+        # Add more gems as needed
+        cat Gemfile
 
     - name: Install dependencies
       run: bundle install
