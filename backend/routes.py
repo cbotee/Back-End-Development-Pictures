@@ -11,7 +11,6 @@ data: list = json.load(open(json_url))
 # RETURN HEALTH OF THE APP
 ######################################################################
 
-
 @app.route("/health")
 def health():
     return jsonify(dict(status="OK")), 200
@@ -19,7 +18,6 @@ def health():
 ######################################################################
 # COUNT THE NUMBER OF PICTURES
 ######################################################################
-
 
 @app.route("/count")
 def count():
@@ -33,7 +31,7 @@ def count():
 ######################################################################
 # GET ALL PICTURES
 ######################################################################
-@app.route("/picture", methods=["GET"])
+@app.route("/pictures", methods=["GET"])
 def get_pictures():
     """return list of data"""
     if data:
@@ -43,11 +41,11 @@ def get_pictures():
 
 
 ######################################################################
-# GET A PICTURE
+# GET A PICTURE BY ID
 ######################################################################
 
 
-@app.route("/picture/<int:id>", methods=["GET"])
+@app.route("/pictures/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
     # Iterate through the 'data' list to search for a picture with a matching ID
     for picture in data:
@@ -62,7 +60,8 @@ def get_picture_by_id(id):
 ######################################################################
 # CREATE A PICTURE
 ######################################################################
-@app.route("/picture", methods=["POST"])
+
+@app.route("/pictures", methods=["POST"])
 def create_picture():
     """create new picture"""
     new_picture = request.json
@@ -85,10 +84,10 @@ def create_picture():
 # UPDATE A PICTURE
 ######################################################################
 
-@app.route("/picture/<int:id>", methods=["PUT"])
+@app.route("/pictures/<int:id>", methods=["PUT"])
 def update_picture(id):
     """update a picture"""
-    # Find the picture by id
+    # find the picture by id
     picture = next((picture for picture in data if picture['id'] == id), None)
     
     if picture is None:
@@ -108,9 +107,10 @@ def update_picture(id):
     return jsonify(picture), 200
 
 ######################################################################
-# DELETE A PICTURE
+# DELETE A PICTURE BY ID
 ######################################################################
-@app.route("/picture/<int:id>", methods=["DELETE"])
+
+@app.route("/pictures/<int:id>", methods=["DELETE"])
 def delete_picture(id):
     # Iterate through the 'data' list to search for a picture with a matching ID
     for picture in data:
