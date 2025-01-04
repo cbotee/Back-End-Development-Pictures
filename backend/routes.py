@@ -1,11 +1,13 @@
 from . import app
 import os
 import json
+import status
 from flask import jsonify, request, make_response, abort, url_for  # noqa; F401
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 json_url = os.path.join(SITE_ROOT, "data", "pictures.json")
 data: list = json.load(open(json_url))
+
 
 ######################################################################
 # RETURN HEALTH OF THE APP
@@ -13,37 +15,38 @@ data: list = json.load(open(json_url))
 
 @app.route("/health")
 def health():
-    return jsonify(dict(status="OK")), 200
+    return jsonify(dict(status="OK")), status.HTTP_200_OK
+
 
 ######################################################################
 # COUNT THE NUMBER OF PICTURES
 ######################################################################
 
-@app.route("/count")
+@app.route("/count", methods=["GET"])
 def count():
     """return length of data"""
     if data:
-        return jsonify(length=len(data)), 200
+        return jsonify(length=len(data)), status.HTTP_200_OK
 
-    return {"message": "Internal server error"}, 500
+    return {"message": "Internal server error"}, status.HTTP_500_SERVER_ERROR
 
 
 ######################################################################
 # GET ALL PICTURES
 ######################################################################
+
 @app.route("/pictures", methods=["GET"])
 def get_pictures():
-    """return list of data"""
+    """Return list of pictures"""
     if data:
-        return jsonify(data)
+        return jsonify(data), status.HTTP_200_OK
 
-    return {"message": "Internal server error"}, 500
+    return {"message": "Internal server error"}, status.HTTP_500_SERVER_ERROR
 
 
 ######################################################################
 # GET A PICTURE BY ID
 ######################################################################
-
 
 @app.route("/pictures/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
@@ -52,9 +55,9 @@ def get_picture_by_id(id):
         # Check if the 'id' field of the picture matches the 'id' parameter
         if picture["id"] == int(id):
             # Return the matching picture as a JSON response with a 200 OK status code
-            return picture
+            return picture, status.HTTP_200_OK
     # If no matching picture is found, return a JSON response with a message and a 404 Not Found status code
-    return {"message": "picture not found"}, 404
+    return {"message": "picture not found"}, status.HTTP_404_NOT_FOUND
 
 
 ######################################################################
@@ -63,10 +66,10 @@ def get_picture_by_id(id):
 
 @app.route("/pictures", methods=["POST"])
 def create_picture():
-    """create new picture"""
+    """Create new picture"""
     new_picture = request.json
     if not new_picture:
-        return {"Message": "Invalid input parameter"}, 422
+        return {"Message": "Invalid input parameter"}, status.HTTP_422_UNPROCESSABLE_ENTITY
     # Iterate through the 'data' list to search for a picture with a matching ID
     for picture in data:
         # Check if the 'id' field of the picture matches the 'id' parameter
@@ -76,9 +79,10 @@ def create_picture():
     try:
         data.append(new_picture)
     except NameError:
-        return {"Message": "data not defined"}, 500
+        return {"Message": "data not defined"}, status.HTTP_500_SERVER_ERROR
 
-    return {"id": new_picture['id']}, 201
+    return {"id": new_picture['id']}, status.HTTP_201_CREATED
+
 
 ######################################################################
 # UPDATE A PICTURE
@@ -86,12 +90,12 @@ def create_picture():
 
 @app.route("/pictures/<int:id>", methods=["PUT"])
 def update_picture(id):
-    """update a picture"""
+    """Update a picture"""
     # find the picture by id
     picture = next((picture for picture in data if picture['id'] == id), None)
     
     if picture is None:
-        return jsonify({'message': 'picture not found'}), 404
+        return jsonify({'message': 'picture not found'}), status.HTTP_404_NOT_FOUND
 
     # Get the picture data from the request
     picture_data = request.get_json()
@@ -104,7 +108,8 @@ def update_picture(id):
     if 'event_state' in picture_data:
         picture['event_state'] = picture_data['event_state']
 
-    return jsonify(picture), 200
+    return jsonify(picture), status.HTTP_200_OK
+
 
 ######################################################################
 # DELETE A PICTURE BY ID
@@ -112,6 +117,7 @@ def update_picture(id):
 
 @app.route("/pictures/<int:id>", methods=["DELETE"])
 def delete_picture(id):
+    """Delete a picture by id"""
     # Iterate through the 'data' list to search for a picture with a matching ID
     for picture in data:
         # Check if the 'id' field of the picture matches the 'id' parameter
@@ -119,6 +125,6 @@ def delete_picture(id):
             # Remove the picture from the 'data' list
             data.remove(picture)
             # Return a JSON response with a empty body and a 204 NO_CONTENT status code
-            return '', 204
+            return '', status.HTTP_204_NO_CONTENT
     # If no matching picture is found, return a JSON response with a message and a 404 Not Found status code
-    return {"message": "picture not found"}, 404
+    return {"message": "picture not found"}, status.HTTP_404_NOT_FOUND
